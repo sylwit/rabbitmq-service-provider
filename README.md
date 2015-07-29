@@ -30,7 +30,7 @@ To learn what you can do with the bundle, please read the bundle's [README](http
 Require the library with Composer:
 
 ```
-$ composer require fiunchinho/rabbitmq-service-provider
+$ composer require sylwit/rabbitmq-service-provider
 ```
 
 Then, to activate the service, register the service provider after creating your Silex Application:
@@ -38,7 +38,7 @@ Then, to activate the service, register the service provider after creating your
 ```php
 
 use Silex\Application;
-use fiunchinho\Silex\Provider\RabbitServiceProvider;
+use Sylwit\Silex\Provider\RabbitServiceProvider;
 
 $app = new Application();
 $app->register(new RabbitServiceProvider());
@@ -71,11 +71,13 @@ $app->register(new RabbitServiceProvider(), [
     'rabbit.producers' => [
         'first_producer' => [
             'connection'        => 'another',
-            'exchange_options'  => ['name' => 'a_exchange', 'type' => 'topic']
+            'exchange_options'  => ['name' => 'a_exchange', 'type' => 'topic'],
+            'queue_options'     => ['name' => 'a_queue', 'routing_keys' => ['foo.#']],
         ],
         'second_producer' => [
             'connection'        => 'default',
-            'exchange_options'  => ['name' => 'a_exchange', 'type' => 'topic']
+            'exchange_options'  => ['name' => 'a_exchange', 'type' => 'topic'],
+            'queue_options'     => ['name' => 'anoher_queue', 'routing_keys' => ['foo.#']]
         ],
     ],
     'rabbit.consumers' => [
@@ -101,8 +103,8 @@ We recommend you to use the Consumer command to consume messages from the queues
 require_once 'vendor/autoload.php';
 
 use Silex\Application;
-use fiunchinho\Silex\Provider\RabbitServiceProvider;
-use fiunchinho\Silex\Command\Consumer;
+use Sylwit\Silex\Provider\RabbitServiceProvider;
+use Sylwit\Silex\Command\Consumer;
 use Knp\Provider\ConsoleServiceProvider;
 
 $app = new Application();

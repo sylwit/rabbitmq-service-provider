@@ -1,17 +1,15 @@
 <?php
 
-namespace fiunchinho\Silex\Provider;
+namespace Sylwit\Silex\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use OldSound\RabbitMqBundle\RabbitMq\Producer;
 use OldSound\RabbitMqBundle\RabbitMq\Consumer;
 use OldSound\RabbitMqBundle\RabbitMq\AnonConsumer;
 use OldSound\RabbitMqBundle\RabbitMq\MultipleConsumer;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use OldSound\RabbitMqBundle\RabbitMq\RpcServer;
-use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
 
 class RabbitServiceProvider implements ServiceProviderInterface
@@ -27,28 +25,6 @@ class RabbitServiceProvider implements ServiceProviderInterface
         $this->loadMultipleConsumers($app);
         $this->loadRpcClients($app);
         $this->loadRpcServers($app);
-    }
-
-    public function boot(Application $app)
-    {
-    }
-
-    /**
-     * Return the name of the connection to use.
-     * 
-     * @param  array     $options     Options for the Producer or Consumer.
-     * @param  array     $connections Connections defined in the config file.
-     * @return string                 The connection name that will be used
-     */
-    private function getConnection($app, $options, $connections)
-    {
-        $connection_name = @$options['connection']?: self::DEFAULT_CONNECTION;
-
-        if (!isset($connections[$connection_name])) {
-            throw new \InvalidArgumentException('Configuration for connection [' . $connection_name . '] not found');
-        }
-
-        return $app['rabbit.connection'][$connection_name];
     }
 
     private function loadConnections($app)
@@ -89,6 +65,10 @@ class RabbitServiceProvider implements ServiceProviderInterface
                 $producer = new Producer($connection);
                 $producer->setExchangeOptions($options['exchange_options']);
 
+                if (isset($options['queue_options'])) {
+                    $producer->setQueueOptions($options['queue_options']);
+                }
+
                 if ((array_key_exists('auto_setup_fabric', $options)) && (!$options['auto_setup_fabric'])) {
                     $producer->disableAutoSetupFabric();
                 }
@@ -98,6 +78,24 @@ class RabbitServiceProvider implements ServiceProviderInterface
 
             return $producers;
         });
+    }
+
+    /**
+     * Return the name of the connection to use.
+     *
+     * @param  array $options Options for the Producer or Consumer.
+     * @param  array $connections Connections defined in the config file.
+     * @return string                 The connection name that will be used
+     */
+    private function getConnection($app, $options, $connections)
+    {
+        $connection_name = @$options['connection'] ?: self::DEFAULT_CONNECTION;
+
+        if (!isset($connections[$connection_name])) {
+            throw new \InvalidArgumentException('Configuration for connection [' . $connection_name . '] not found');
+        }
+
+        return $app['rabbit.connection'][$connection_name];
     }
 
     private function loadConsumers($app)
@@ -194,7 +192,7 @@ class RabbitServiceProvider implements ServiceProviderInterface
 
             return $consumers;
         });
-        
+
     }
 
     private function loadRpcClients($app)
@@ -247,6 +245,10 @@ class RabbitServiceProvider implements ServiceProviderInterface
 
             return $servers;
         });
-        
+
+    }
+
+    public function boot(Application $app)
+    {
     }
 }

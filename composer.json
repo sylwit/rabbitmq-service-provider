@@ -1,8 +1,8 @@
 {
-    "name": "fiunchinho/rabbitmq-service-provider",
+    "name": "sylwit/rabbitmq-service-provider",
     "description": "Silex service provider for RabbitMQ",
     "keywords": [ "amqp", "RabbitMQ", "silex" ],
-    "homepage": "http://github.com/fiunchinho/rabbitmq-service-provider",
+    "homepage": "http://github.com/sylwit/rabbitmq-service-provider",
     "license": "MIT",
     "authors": [
         {
@@ -21,6 +21,6 @@
         "phpunit/phpunit": "~4.2"
     },
     "autoload": {
-        "psr-0": { "fiunchinho": "src/" }
+        "psr-0": { "Sylwit": "src/" }
     }
 }
